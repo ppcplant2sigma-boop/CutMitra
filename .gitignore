@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.env/
+
+# PyInstaller build output (rebuild with BUILD_EXE.bat, attach .exe via GitHub Releases)
+build/
+dist/
+*.spec
+
+# Saved nesting projects (user data)
+*.json
+
+# Test / scratch files
+t_*.dxf
+t_*.pdf
+test_*.py
+
+# OS / editors
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

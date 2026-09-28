@@ -1,0 +1,37 @@
+# Changelog
+
+## v1.0.3 — 2026-09-28
+
+- Developer credits: **Er. Durgesh Pandey**, **Er. Arun Shukla** — new
+  Help → About dialog in the app, credit footer on printed reports,
+  Credits section in README / User Guide
+
+## v1.0.2 — 2026-09-28
+
+- Renamed app **Link Cutlist Optimizer → CutMitra** everywhere (window title,
+  exe name, metadata, docs); logo redrawn as a "C" sheet mark
+- Product = CutMitra 1.0.0 in exe properties
+
+## v1.0.1 — 2026-09-28
+
+- New logo (`assets/logo.png`/`.ico`, generator in `tools/make_logo.py`) —
+  shown in the window title bar, taskbar, and embedded as the exe icon
+- Exe now carries version metadata (`version_info.txt`): Company = Link,
+  Product = Link Cutlist Optimizer 1.0.0 — no more "unknown program" look in
+  Properties / SmartScreen dialog
+
+## v1.0.0 — 2026-09-28 (initial release)
+
+- Pro-style DEMAND / STOCK tables with direct in-cell editing, Tab navigation,
+  green `+` add-row, Del-key delete
+- Per-row Rotation toggle, Grain lock, Material matching, piece Labels
+- Kerf + trim-edge aware nesting
+- MaxRects Best-Short-Side-Fit engine with 4-pass sort-order search
+- Per-sheet cutting diagram: sizes with backing labels, hatched true-waste
+  areas, cut index, Quantity grouping, zoom slider
+- Auto RM-summary pop-up after nesting + material-wise report in
+  Statistics: 2D (sheets used per material with stock sizes)
+- CSV / DXF / PDF-drawing import that auto-fills DEMAND
+- TXT cutting report with X/Y positions, DXF export, JSON save/load
+- Stock price → total + per-material cost tracking
+- Professional navy/steel theme, alternating table rows

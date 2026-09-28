@@ -1,0 +1,6 @@
+# Runtime: Python 3.10+ (tkinter is part of the standard library)
+# Only dependency needed for normal use:
+pymupdf>=1.23          # PDF-drawing import (DXF / CSV import work without it)
+
+# Build-only (to create the offline Windows .exe):
+# pyinstaller>=6

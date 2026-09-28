@@ -1,0 +1,31 @@
+# Version / identity metadata embedded in the .exe by PyInstaller.
+# Shows proper Product name + Company in file Properties and in the
+# SmartScreen dialog instead of "Unknown publisher / unknown program".
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 3, 0),
+    prodvers=(1, 0, 3, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+        StringTable(
+          '040904B0',
+          [StringStruct('CompanyName', 'Link'),
+           StringStruct('FileDescription', 'CutMitra - offline sheet nesting'),
+           StringStruct('FileVersion', '1.0.3'),
+           StringStruct('InternalName', 'CutMitra'),
+           StringStruct('LegalCopyright', 'Copyright (c) Link 2026'),
+           StringStruct('OriginalFilename', 'CutMitra.exe'),
+           StringStruct('ProductName', 'CutMitra'),
+           StringStruct('ProductVersion', '1.0.3')])
+      ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
