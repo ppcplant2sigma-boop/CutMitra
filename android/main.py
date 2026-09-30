@@ -233,8 +233,9 @@ class CutMitraApp(App):
                "desktop app. 100% offline —\n"
                "no internet, no account, no tracking.\n\n"
                "Developers\n" + "\n".join(DEVELOPERS))
-        lab = Label(text=txt, halign="center", valign="top")
+        lab = Label(text=txt, halign="center", valign="top", size_hint_y=None)
         lab.bind(texture_size=lambda o, v: setattr(o, "height", v[1]))
+        lab.bind(width=lambda o, v: setattr(o, "text_size", (v, None)))
         lay.add_widget(lab)
         return lay
 
