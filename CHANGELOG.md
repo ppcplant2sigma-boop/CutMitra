@@ -2,9 +2,16 @@
 
 ## v1.0.3 — 2026-09-28
 
+- **New Android app** (`android/`, Kivy) with the same MaxRects engine as the
+  desktop: DEMAND / STOCK entry, Rotation + Grain, Material, Price, kerf/trim,
+  material-wise summary, per-sheet diagram + X/Y cut list, ABOUT tab with
+  credits. Launcher icon reuses `assets/logo.png`. Build via
+  `android/package_apk.sh` (Linux / WSL) → `bin/cutmitra-1.0.3-arm64-v8a-debug.apk`
+- Engine extracted to `src/core_nest.py` so Windows and Android provably share
+  one nesting implementation (same input → same 29-sheet / 80.09% result)
 - Developer credits: **Er. Durgesh Pandey**, **Er. Arun Shukla** — new
   Help → About dialog in the app, credit footer on printed reports,
-  Credits section in README / User Guide
+  Credits section in README / User Guide, and an ABOUT tab in the Android app
 
 ## v1.0.2 — 2026-09-28
 

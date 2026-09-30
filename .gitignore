@@ -11,6 +11,17 @@ venv/
 build/
 dist/
 *.spec
+!android/buildozer.spec
+
+# Android / Buildozer output (rebuild with android/package_apk.sh, attach the
+# APK via GitHub Releases)
+.buildozer/
+bin/
+android/core_nest.py
+android/icon.png
+*.apk
+*.aab
+*.keystore
 
 # Saved nesting projects (user data)
 *.json

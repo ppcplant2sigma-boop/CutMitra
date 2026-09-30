@@ -1,0 +1,2 @@
+# Keep shell scripts LF — CRLF breaks `bash package_apk.sh` on Linux/WSL.
+*.sh text eol=lf

@@ -2,10 +2,12 @@
 
 ![logo](assets/logo.png)
 
-Offline 2D sheet-cutting (nesting) optimizer for Windows — in the style of
-Cutting Optimization Pro. Enter the sheets you hold in **STOCK** and the parts
-you need in **DEMAND**, press **▶ Start**, and get per-sheet cutting diagrams
-with minimum scrap. **100% offline**, no internet or licence needed.
+Offline 2D sheet-cutting (nesting) optimizer for **Windows and Android** — in
+the style of Cutting Optimization Pro. Enter the sheets you hold in **STOCK**
+and the parts you need in **DEMAND**, press **▶ Start**, and get per-sheet
+cutting diagrams with minimum scrap. **100% offline**, no internet or licence
+needed. Both builds share one nesting engine (`src/core_nest.py`), so a phone
+and a PC give the same layout.
 
 ## Features
 
@@ -41,6 +43,11 @@ python src/cutlist_optimizer.py
 **Option B — Windows exe** (no Python needed): run `BUILD_EXE.bat`, then launch
 `dist/CutMitra.exe`.
 
+**Option C — Android APK**: prebuilt APKs are attached to the
+[GitHub releases](https://github.com/ppcplant2sigma-boop/CutMitra/releases);
+copy the `.apk` to the phone → tap it → allow *Install unknown apps*. To build
+it yourself (Linux or WSL), see [`android/README_ANDROID.md`](android/README_ANDROID.md).
+
 ## Typical workflow
 
 1. **STOCK** — double-click the green `+` row, type sheet Length, Width, Qty
@@ -58,9 +65,15 @@ See [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) for the full operator guide.
 ```
 link-cutlist-optimizer/
 ├── src/
-│   └── cutlist_optimizer.py   # the whole app (tkinter, stdlib + pymupdf)
+│   ├── core_nest.py            # shared MaxRects engine (Windows + Android)
+│   └── cutlist_optimizer.py    # Windows app (tkinter, stdlib + pymupdf)
+├── android/
+│   ├── main.py                 # Kivy app (mobile UI)
+│   ├── buildozer.spec          # APK packaging config
+│   ├── package_apk.sh          # builds bin/*.apk (Linux / WSL)
+│   └── README_ANDROID.md       # APK build + install guide
 ├── assets/
-│   ├── logo.png / logo.ico    # app + exe icon
+│   ├── logo.png / logo.ico    # app + exe + Android launcher icon
 ├── tools/
 │   └── make_logo.py           # regenerates the logo (pip install pillow)
 ├── docs/
@@ -99,8 +112,12 @@ the usable sheet area on all four sides.
 ## Notes
 
 - All dimensions are in **millimetres**; areas shown in m² where large.
-- `build/`, `dist/` and the `.spec` file are PyInstaller artefacts and are
-  **not** committed — rebuild locally or attach the `.exe` to a GitHub Release.
+- `build/`, `dist/`, the PyInstaller `.spec` file, `.buildozer/`, `bin/*.apk`,
+  `android/core_nest.py` and `android/icon.png` are build artefacts and are
+  **not** committed — rebuild locally or attach the `.exe` / `.apk` to a
+  GitHub Release. `android/core_nest.py` and `android/icon.png` are copied from
+  `src/core_nest.py` and `assets/logo.png` by `android/package_apk.sh`, so the
+  engine has exactly one source in git.
 - PDF import needs vector CAD PDFs; scanned/image PDFs have no vectors —
   use DXF for those.
 
