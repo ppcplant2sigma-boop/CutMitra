@@ -2,6 +2,13 @@
 
 ## v1.0.3 — 2026-09-28
 
+- **Fix — Android app opened to a black screen**: `CutMitraApp.start_nesting`
+  was defined as `run()`, shadowing Kivy's `App.run()`, so the app built no
+  window and died on `self.kerf_in` (no such attribute). Renamed to
+  `start_nesting()`; added `android/smoke_test.py` (22 UI checks) so the whole
+  app is exercised without a phone
+- Crashes are no longer silent on Android: traceback popup + `cutmitra_error.log`
+  in the app's private folder
 - **New Android app** (`android/`, Kivy) with the same MaxRects engine as the
   desktop: DEMAND / STOCK entry, Rotation + Grain, Material, Price, kerf/trim,
   material-wise summary, per-sheet diagram + X/Y cut list, ABOUT tab with

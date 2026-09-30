@@ -4,6 +4,10 @@ Same MaxRects engine as the desktop app (core_nest.py, copied next to this
 file at package time). 100% offline. Mobile v1: manual size entry +
 diagrams + material-wise summary (no file import/export yet).
 """
+import os
+import sys
+import traceback
+
 from kivy.app import App
 from kivy.graphics import Color, Line, Rectangle
 from kivy.metrics import dp
@@ -52,6 +56,33 @@ def err_popup(msg):
     pop = Popup(title="CutMitra", content=box, size_hint=(0.85, 0.4))
     btn.bind(on_release=pop.dismiss)
     pop.open()
+
+
+def save_error(text):
+    """Android hides stderr, so keep a copy of every crash on disk."""
+    try:
+        path = os.path.join(os.path.expanduser("~"), "cutmitra_error.log")
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(text + "\n" + "-" * 50 + "\n")
+    except Exception:
+        pass
+
+
+def crash_guard(fn):
+    """Report a failure on screen instead of dying silently."""
+    def wrapper(*a, **kw):
+        try:
+            return fn(*a, **kw)
+        except Exception:
+            tb = traceback.format_exc()
+            save_error(tb)
+            try:
+                err_popup("Something went wrong:\n\n" + tb[-700:])
+            except Exception:
+                pass
+            raise
+    wrapper.__name__ = fn.__name__
+    return wrapper
 
 
 class RowList(BoxLayout):
@@ -135,6 +166,14 @@ class CutMitraApp(App):
     title = "CutMitra"
 
     def build(self):
+        try:
+            return self._build()
+        except Exception:
+            tb = traceback.format_exc()
+            save_error(tb)
+            raise
+
+    def _build(self):
         self.demands = [{"L": 380.0, "W": 955.0, "qty": 200, "rot": True,
                          "grain": False, "material": "", "label": ""}]
         self.stocks = [{"L": 1250.0, "W": 2500.0, "qty": 200, "material": "",
@@ -191,7 +230,7 @@ class CutMitraApp(App):
         lay.add_widget(grid)
         btn = Button(text="▶ START NESTING", size_hint_y=None, height=dp(64),
                      background_color=GREEN, color=(1, 1, 1, 1), bold=True)
-        btn.bind(on_release=lambda _e: self.run())
+        btn.bind(on_release=lambda _e: self.start_nesting())
         lay.add_widget(btn)
         lay.add_widget(Label(text="Same MaxRects engine as desktop.\nRotation + Grain respected per row.",
                              halign="center"))
@@ -257,6 +296,7 @@ class CutMitraApp(App):
             del items[j]
         self.refresh_lists()
 
+    @crash_guard
     def open_editor(self, kind, j):
         is_stock = kind == "stock"
         cur = None
@@ -335,7 +375,8 @@ class CutMitraApp(App):
         pop.open()
 
     # ---------- optimize ----------
-    def run(self):
+    @crash_guard
+    def start_nesting(self):
         if not self.demands:
             return err_popup("Add at least one DEMAND row.")
         if not self.stocks:
@@ -366,6 +407,7 @@ class CutMitraApp(App):
         self.res_label.text = "\n".join(L)
         self.show_sheet()
 
+    @crash_guard
     def step_sheet(self, d):
         if not self.sheets:
             return
@@ -387,4 +429,9 @@ class CutMitraApp(App):
 
 
 if __name__ == "__main__":
+    def _excepthook(exc_type, exc, tb):
+        save_error("".join(traceback.format_exception(exc_type, exc, tb)))
+        sys.__excepthook__(exc_type, exc, tb)
+
+    sys.excepthook = _excepthook
     CutMitraApp().run()

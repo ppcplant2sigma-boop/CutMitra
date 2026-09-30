@@ -15,6 +15,27 @@ engine stays identical). 100% offline.
 - Not in mobile v1 (desktop has them): PDF / DXF / CSV import, TXT / DXF
   export, project save/load, zoom slider
 
+## Test the UI without a phone
+
+```bash
+pip install kivy
+python android/smoke_test.py
+```
+
+Boots the real Kivy app on the desktop (a window flashes for ~1 s), then drives
+every screen: nesting, sheet browser, cut list, ABOUT tab, the add/edit popups
+and both error paths. 22 checks, non-zero exit on failure. It is also the
+fastest way to catch a broken APK — e.g. a method that shadows `App.run()`
+kills the app before any window opens, which is exactly the bug that shipped in
+the first `v1.0.3` upload.
+
+## When the app misbehaves on a phone
+
+Android hides `stderr`, so every crash is (a) shown in a popup with the
+traceback and (b) appended to `cutmitra_error.log` in the app's private folder.
+Screenshot the popup, or pull the log with
+`adb shell run-as org.link.cutmitra cat files/cutmitra_error.log`.
+
 ## Build the APK (WSL Ubuntu)
 
 ```bash
