@@ -19,15 +19,22 @@ engine stays identical). 100% offline.
 
 ```bash
 pip install kivy
-python android/smoke_test.py
+python android/smoke_test.py    # drives all 5 tabs, 34 checks
+python android/ui_audit.py     # fails if any label or button is clipped
 ```
 
-Boots the real Kivy app on the desktop (a window flashes for ~1 s), then drives
-every screen: nesting, sheet browser, cut list, ABOUT tab, the add/edit popups
-and both error paths. 22 checks, non-zero exit on failure. It is also the
-fastest way to catch a broken APK — e.g. a method that shadows `App.run()`
-kills the app before any window opens, which is exactly the bug that shipped in
-the first `v1.0.3` upload.
+`smoke_test.py` boots the real Kivy app on the desktop (a window flashes for
+~1 s), then drives every screen: nesting, KPI tiles, running-metre table, sheet
+browser, cut list, ABOUT tab, the add/edit popups and both error paths. It is
+also the fastest way to catch a broken APK — e.g. a method that shadows
+`App.run()` kills the app before any window opens, which is exactly the bug that
+shipped in the first `v1.0.3` upload.
+
+`ui_audit.py` re-walks every tab at 360 × 700 and measures each widget: a
+`Button` whose text is wider than the button, a `Label` whose texture is taller
+than its box, or a widget left with no room all fail the run. This is the
+regression guard for the UI complaints ("button label is not proper", "text is
+cut off") — keep it green.
 
 ## When the app misbehaves on a phone
 

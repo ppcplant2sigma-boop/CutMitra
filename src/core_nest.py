@@ -435,9 +435,41 @@ def parse_pdf_parts(path, scale=1.0, min_dim=10.0, tol=1.0):
     return _merge_sizes(parts)
 
 
+def running_metres(demands):
+    """Running metre = cut edge length of a part. For an L x W panel one
+    piece needs 2*(L+W) mm of sawing; multiply by the quantity for the total.
+
+    Returns (total_metres, rows) where rows are grouped per material and
+    ordered by running metre, so both UIs can print a demand table."""
+    per_mat = {}
+    total = 0.0
+    for d in demands:
+        try:
+            qty = int(d.get("qty", 0) or 0)
+            per_piece = 2.0 * (float(d["L"]) + float(d["W"])) / 1000.0
+        except (KeyError, TypeError, ValueError):
+            continue
+        run = per_piece * qty
+        total += run
+        mat = (d.get("material", "") or "").strip() or "— Unspecified —"
+        size = f"{float(d['L']):g} x {float(d['W']):g}"
+        row = per_mat.setdefault(mat, {}).setdefault(
+            size, {"material": mat, "size": size, "pcs": 0, "qty": 0,
+                   "run_m": 0.0, "m_each": per_piece})
+        row["pcs"] += 1
+        row["qty"] += qty
+        row["run_m"] += run
+    rows = []
+    for mat in sorted(per_mat):
+        rows += sorted(per_mat[mat].values(), key=lambda r: -r["run_m"])
+    return total, rows
+
+
 def summarize_nesting(sheets, demands, stocks, stock_used=None):
     """Pure helper shared by desktop + mobile. Returns (total, blocks) where
-    blocks are per-material sections with stock sizes used."""
+    blocks are per-material sections with stock sizes used. `total` also
+    carries the demand running metres (`run_m`) and the per-size table
+    (`parts`) from running_metres()."""
     groups = {}
     for sh in sheets:
         s = stocks[sh["stock_idx"]]
@@ -452,6 +484,10 @@ def summarize_nesting(sheets, demands, stocks, stock_used=None):
             g["cost"] += float(s.get("price", 0) or 0)
         except Exception:
             pass
+    run_total, part_rows = running_metres(demands)
+    run_by_mat = {}
+    for r in part_rows:
+        run_by_mat[r["material"]] = run_by_mat.get(r["material"], 0.0) + r["run_m"]
     used = list(stock_used or [0] * len(stocks))
     blocks = []
     for mat in sorted(groups):
@@ -466,12 +502,14 @@ def summarize_nesting(sheets, demands, stocks, stock_used=None):
                               "sqm": s["L"] * s["W"] * n / 1e6})
         blocks.append({"material": mat, "sheets": g["sheets"],
                        "rm_sqm": g["sheet_area"] / 1e6, "pcs": g["pcs"],
-                       "util": u, "waste": 100 - u, "cost": g["cost"], "sizes": sizes})
+                       "util": u, "waste": 100 - u, "cost": g["cost"],
+                       "run_m": run_by_mat.get(mat, 0.0), "sizes": sizes})
     tot_area = sum(sh["sw"] * sh["sh"] for sh in sheets)
     tot_part = sum(d["L"] * d["W"] * d["qty"] for d in demands)
     tu = tot_part / tot_area * 100 if tot_area else 0
     total = {"sheets": len(sheets), "rm_sqm": tot_area / 1e6,
              "pcs": sum(d["qty"] for d in demands),
              "util": tu, "waste": 100 - tu,
+             "run_m": run_total, "parts": part_rows,
              "cost": sum(b["cost"] for b in blocks)}
     return total, blocks

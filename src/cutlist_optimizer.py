@@ -652,7 +652,14 @@ class App:
         L = [f"TOTAL RM USED : {total['sheets']} sheets  |  {total['rm_sqm']:.3f} m²  |  "
              f"{total['pcs']} pcs",
              f"Utilization   : {total['util']:.2f} %   |   Waste : {total['waste']:.2f} %",
-             f"Total cost    : {total['cost']:,.0f}", ""]
+             f"Total cost    : {total['cost']:,.0f}",
+             f"Running metre : {total['run_m']:,.2f} r.m. (cut edge of the demand)",
+             "", "DEMAND RUNNING METRE", ""]
+        w = max((len(p["size"]) for p in total["parts"]), default=4)
+        for p in total["parts"]:
+            L.append(f"  {p['size']:<{w}}  x{p['qty']:>4}  "
+                     f"{p['m_each']:.3f} m/pc  =  {p['run_m']:,.3f} r.m.")
+        L.append("")
         for b in blocks:
             L.append("=" * 56)
             L.append(f"MATERIAL : {b['material']}  —  {b['sheets']} sheets  |  "
@@ -701,14 +708,20 @@ class App:
         _, _, util, cost = self.totals()
         total, blocks = self.rm_breakdown()
         lines = [f"Sheets: {len(self.sheets)}  Parts: {sum(d['qty'] for d in self.demands)}",
-                 f"Utilization: {util:.3f} %   Waste: {100-util:.3f} %   Cost: {cost:,.0f}", "",
+                 f"Utilization: {util:.3f} %   Waste: {100-util:.3f} %   Cost: {cost:,.0f}",
+                 f"Running metre: {total['run_m']:,.2f} r.m.", "",
                  "MATERIAL-WISE RM REPORT", ""]
         for b in blocks:
             lines.append(f"[ {b['material']} ]  {b['sheets']} sheets  {b['rm_sqm']:.3f} m²  "
-                         f"{b['pcs']} pcs  Util {b['util']:.2f}%  Cost {b['cost']:,.0f}")
+                         f"{b['pcs']} pcs  Util {b['util']:.2f}%  Cost {b['cost']:,.0f}  "
+                         f"Run {b['run_m']:,.2f} r.m.")
             for sz in b["sizes"]:
                 lines.append(f"    {sz['size']}  x {sz['qty']}  =  {sz['sqm']:.3f} m²")
             lines.append("")
+        lines.append("DEMAND RUNNING METRE (2 x (L + W) x qty)")
+        for p in total["parts"]:
+            lines.append(f"    {p['size']}  x{p['qty']}  =  {p['run_m']:.3f} r.m.")
+        lines.append("")
         lines.append(f"TOTAL  {total['sheets']} sheets  {total['rm_sqm']:.3f} m²  "
                      f"{total['pcs']} pcs  Util {total['util']:.2f}%  Cost {total['cost']:,.0f}")
         lines.append("")

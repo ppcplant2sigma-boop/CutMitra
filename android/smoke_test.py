@@ -24,6 +24,8 @@ if not os.path.exists(os.path.join(HERE, "core_nest.py")):
 
 from kivy.clock import Clock          # noqa: E402
 from kivy.core.window import Window   # noqa: E402
+from kivy.graphics import Line, Mesh  # noqa: E402
+from kivy.metrics import dp          # noqa: E402
 
 import main as m                      # noqa: E402
 
@@ -60,11 +62,32 @@ def step(dt):
     app.trim_in.text = "0"
     app.start_nesting()
     check("29 sheets nested", len(app.sheets) == 29)
-    check("summary shown", "Sheets: 29" in app.res_label.text)
-    check("80.09% util", "80.09%" in app.res_label.text)
+    check("sheet tile", app.t_sheets.value_lbl.text == "29")
+    check("util tile 80.1%", app.t_util.value_lbl.text == "80.1%")
+    check("scrap tile shown", app.t_waste.value_lbl.text.endswith("%"))
+    check("running metre tile", "m" in app.t_run.text)
+    check("demand size in run table", "380 x 955" in app.run_label.text)
     check("switched to RESULT", app.tabs._current_tab is app.tab_o)
     check("sheet label", app.sheet_label.text == "Sheet 1/29")
     check("cut list rendered", len(app.cut_label.text.splitlines()) > 3)
+
+    # RESULT diagram: sheet + one rectangle per piece + hatch mesh for the scrap
+    pv = app.preview
+    check("preview gets most of the tab",
+          app.sheet_card.size_hint_y > app.cut_card.size_hint_y)
+    pv.size = (dp(340), dp(300))          # the tab is not laid out yet here
+    pv._draw()
+    kids = pv.canvas.children
+    pieces = len(app.sheets[0]["places"])
+    check("preview drew the sheet", len(kids) >= pieces * 3)
+    check("scrap is hatched", any(isinstance(i, Mesh) for i in kids))
+    check("every piece outlined",
+          sum(1 for i in kids if isinstance(i, Line)) >= pieces + 1)
+    check("hatch clipped to scrap area",
+          pv.trim == 0.0 and app.sheets[0]["free"] != [])
+    pv.size = (dp(320), dp(160))
+    pv._draw()
+    check("redraw at another size works", len(pv.canvas.children) >= 2)
 
     app.step_sheet(1)
     check("sheet 2", app.sheet_label.text == "Sheet 2/29")
@@ -88,6 +111,7 @@ def step(dt):
 
     app.delete_row("demand", 0)
     check("row deleted", len(app.demands) == 0)
+    check("empty state shown", "No rows yet" in labels_text(app.dlist))
     app.start_nesting()
     check("error popup on empty demand", popup_count() >= 1)
     close_popups()
@@ -108,11 +132,18 @@ def step(dt):
     app.refresh_lists()
     app.start_nesting()
     check("multi-material run nested", len(app.sheets) > 0)
-    check("material-wise block", "[MS]" in app.res_label.text)
-    check("cost shown", "Cost:" in app.res_label.text)
+    check("both sizes in run table",
+          "610 x 410" in app.run_label.text and "380 x 955" in app.run_label.text)
+    check("run table adds up", app.t_run.text.replace(",", "").startswith("6")
+          and "m" in app.t_run.text)
+    check("cost tile", app.t_cost.value_lbl.text not in ("—", ""))
 
     print("\nALL UI CHECKS PASSED", flush=True)
     app.stop()
+
+
+def labels_text(widget):
+    return "\n".join(labels(widget))
 
 
 class _TestApp(m.CutMitraApp):

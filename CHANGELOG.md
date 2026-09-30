@@ -2,6 +2,16 @@
 
 ## v1.0.3 — 2026-09-28
 
+- **Running metre (perimeter) of the demand**: `2 x (L + W) x qty` per size, in
+  the mobile RESULT tab as a KPI + per-size table (size / pcs / m-per-pc /
+  running m) and in the desktop RM report and Statistics view
+- **RESULT diagram redrawn**: every demand panel gets an outline (the first cut
+  stays red, as on desktop), the scrap area is hatched 45° and the sheet got
+  ~2x bigger; piece sizes are printed where they fit
+- **UI rebuilt**: app bar with version, white cards on a soft background,
+  captioned panels, KPI tiles, consistent type scale, proper ASCII button labels
+  (Kivy drops ▶ ◀ on some Android fonts) and no clipped text — `android/ui_audit.py`
+  fails the build if any label or button does not fit its box
 - **Fix — Android app opened to a black screen**: `CutMitraApp.start_nesting`
   was defined as `run()`, shadowing Kivy's `App.run()`, so the app built no
   window and died on `self.kerf_in` (no such attribute). Renamed to
